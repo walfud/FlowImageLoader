@@ -1,9 +1,13 @@
 # Introduction
-FlowImageLoader is very friendly to developer. Because every thing is intuitive and in your control.
+FlowImageLoader is very friendly to developer. Because every thing is intuitive and under your control.
 
-# Example
+# Usage
 
-## Basic Usage
+```
+compile 'com.walfud:flowimageloader:1.0.0'
+```
+
+## Basic
 
 #### Load Image With Cache
 ```java

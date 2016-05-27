@@ -47,6 +47,8 @@ dependencies {
     compile 'com.walfud:walle:1.0.0'
 }
 
+def ARTIFACT_VERSION='1.0.0'
+
 group = 'com.walfud'
 version = ARTIFACT_VERSION
 project.archivesBaseName = 'flowimageloader'
