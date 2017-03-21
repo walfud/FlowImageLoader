@@ -51,6 +51,6 @@ new Rose(imageView).open(url);
 #### Sunflower
 `Sunflower` is circled one.
 ```java
-new Rose(imageView).open(url);
+new Sunflower(imageView).open(url);
 ```
 ![effect_sunflower](https://raw.githubusercontent.com/walfud/flowimageloader/master/doc/effect_sunflower.png)
