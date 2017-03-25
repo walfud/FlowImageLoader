@@ -1,13 +1,13 @@
-package com.example.flowimageloaderdemo;
+package com.walfud.flowimageloaderdemo;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.walfud.flowimageloader.FlowImageLoader;
 import com.walfud.flowimageloader.flower.Rose;
 import com.walfud.flowimageloader.flower.Sunflower;
-import com.walfud.flowimageloaderdemo.R;
 
 
 public class MainActivity extends Activity {
