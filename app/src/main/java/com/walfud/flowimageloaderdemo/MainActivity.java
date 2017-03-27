@@ -3,7 +3,6 @@ package com.walfud.flowimageloaderdemo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.walfud.flowimageloader.FlowImageLoader;
 import com.walfud.flowimageloader.flower.Rose;
@@ -28,7 +27,7 @@ public class MainActivity extends Activity {
         {
             mSunflowerIv = (ImageView) findViewById(R.id.iv_sunflower);
             mSunflowerEffectIv = (ImageView) findViewById(R.id.iv_sunflower_effect);
-            String sunflowerUrl = "https://raw.githubusercontent.com/walfud/flowimageloaderdemo/master/doc/sunflower.jpg";
+            String sunflowerUrl = "https://github.com/walfud/FlowImageLoader/raw/v1.0.0/doc/sunflower.png";
 
             // Normal loading
             FlowImageLoader.with(this)
@@ -47,7 +46,7 @@ public class MainActivity extends Activity {
             // Normal loading
             mRoseIv = (ImageView) findViewById(R.id.iv_rose);
             mRoseEffectIv = (ImageView) findViewById(R.id.iv_rose_effect);
-            String roseUrl = "https://raw.githubusercontent.com/walfud/flowimageloaderdemo/master/doc/rose.jpg";
+            String roseUrl = "https://github.com/walfud/FlowImageLoader/raw/v1.0.0/doc/rose.png";
             FlowImageLoader.with(this)
                     .load(roseUrl)
                     .into(mRoseIv, R.drawable.loading, R.drawable.fail)

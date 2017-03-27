@@ -1,6 +1,7 @@
 package com.walfud.flowimageloader.dna;
 
 import android.graphics.Bitmap;
+import android.os.Handler;
 
 import com.walfud.flowimageloader.cache.CacheManager;
 import com.walfud.flowimageloader.dna.action.Action;
@@ -80,7 +81,7 @@ public class Dna {
                 super.onStart();
 
                 if (mListener != null) {
-                    mListener.onStart();
+                    new Handler().post(() -> mListener.onStart());
                 }
             }
 
