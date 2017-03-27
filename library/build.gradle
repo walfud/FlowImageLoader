@@ -1,3 +1,7 @@
+plugins {
+    id "me.tatarka.retrolambda" version "3.6.0"
+}
+
 apply plugin: 'com.android.library'
 
 android {
@@ -10,10 +14,9 @@ android {
         versionCode 1
         versionName "1.0"
     }
-
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
     }
 }
 
