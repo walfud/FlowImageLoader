@@ -2,6 +2,7 @@ package com.walfud.flowimageloader.dna;
 
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.walfud.flowimageloader.cache.CacheManager;
 import com.walfud.flowimageloader.dna.action.Action;
@@ -14,9 +15,10 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+
 
 /**
  * Created by walfud on 2016/3/18.
@@ -25,9 +27,10 @@ public class Dna {
     public List<Gene> geneList = new ArrayList<>();
     public List<Gene> unAbsorbGeneList = new ArrayList<>();
     public StrongReference<Bitmap> bitmapRef = new StrongReference<>(null);
-    private Observable<Void> observable = Observable.just(null);
-    private Subscription subscription;
+    private Observable<Object> observable = Observable.empty();
+    private Disposable disposable;
     private Listener mListener;
+    private Handler mHandler = new Handler();
 
     public Dna digest(Gene gene) {
         unAbsorbGeneList.add(gene);
@@ -62,7 +65,7 @@ public class Dna {
             }
 
             // Replay the un-cached gene
-            observable = observable.concatWith(Observable.from(unCachedGeneList).concatMap(gene -> gene.inject(this)));
+            observable = observable.concatWith(Observable.fromIterable(unCachedGeneList).concatMap(gene -> gene.inject(this)));
 
             // Do action
             observable = observable.concatWith(action.act(this));
@@ -75,40 +78,40 @@ public class Dna {
     }
 
     public void evolve() {
-        subscription = observable.subscribe(new Subscriber<Void>() {
+        observable.subscribe(new Observer<Object>() {
             @Override
-            public void onStart() {
-                super.onStart();
+            public void onSubscribe(Disposable d) {
+                disposable = d;
 
                 if (mListener != null) {
-                    new Handler().post(() -> mListener.onStart());
+                    runOnUiThread(() -> mListener.onStart());
                 }
             }
 
             @Override
-            public void onNext(Void aVoid) {
+            public void onNext(Object object) {
 
             }
 
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 if (mListener != null) {
-                    mListener.onFinish(true);
+                    runOnUiThread(() -> mListener.onFinish(null));
                 }
             }
 
             @Override
             public void onError(Throwable e) {
                 if (mListener != null) {
-                    mListener.onFinish(false);
+                    runOnUiThread(() -> mListener.onFinish(e));
                 }
             }
         });
     }
 
     public void eliminate() {
-        if (subscription != null) {
-            subscription.unsubscribe();
+        if (disposable != null) {
+            disposable.dispose();
         }
     }
 
@@ -117,8 +120,17 @@ public class Dna {
     }
 
     //
+    private void runOnUiThread(Runnable runnable) {
+        if (Looper.getMainLooper().isCurrentThread()) {
+            runnable.run();
+        } else {
+            mHandler.post(runnable);
+        }
+    }
+
+    //
     public interface Listener {
         void onStart();
-        void onFinish(boolean suc);
+        void onFinish(Throwable err);
     }
 }

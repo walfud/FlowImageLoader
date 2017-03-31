@@ -5,8 +5,8 @@ import android.widget.ImageView;
 
 import com.walfud.flowimageloader.dna.Dna;
 
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by walfud on 2016/3/19.
@@ -22,10 +22,10 @@ public class IntoAction extends Action {
     }
 
     @Override
-    public Observable<Void> onAct(Dna dna) {
-        return Observable.<Void>just(null)
+    public Observable<Object> onAct(Dna dna) {
+        return Observable.<Object>just(0)
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(aVoid -> {
+                .map(object -> {
                     Bitmap bitmap = dna.bitmapRef.get();
 
                     if (imageView != null && bitmap != null) {
@@ -33,7 +33,7 @@ public class IntoAction extends Action {
                         imageView.setImageBitmap(bitmap);
                     }
 
-                    return null;
+                    return object;
                 });
     }
 }

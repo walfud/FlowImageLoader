@@ -5,8 +5,8 @@ import android.graphics.Bitmap;
 import com.walfud.flowimageloader.dna.Dna;
 import com.walfud.walle.graphic.BitmapTransformer;
 
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by walfud on 2016/3/19.
@@ -22,9 +22,9 @@ public class RoundGene extends Gene {
 
     @Override
     public Observable<Bitmap> onInject(Dna dna) {
-        return Observable.just(null)
+        return Observable.just(0)
                 .observeOn(Schedulers.computation())
-                .map(aVoid -> {
+                .map(object -> {
                     Bitmap src = dna.bitmapRef.get();
                     return new BitmapTransformer(src)
                             .round(radiusX, radiusY)

@@ -8,15 +8,15 @@ import android.net.Uri;
 import com.google.gson.Gson;
 import com.walfud.walle.algorithm.hash.HashUtils;
 import com.walfud.walle.io.IoUtils;
+import com.walfud.walle.lang.ObjectUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
-import rx.Subscription;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by walfud on 2015/11/18.
@@ -52,7 +52,7 @@ public class DiskCache extends Cache {
     };
     private File mCacheDir;
     final private File mCacheIndexFile;
-    private Subscription mWriterSubscription;
+    private Disposable mWriterDisposable;
 
     public DiskCache(Context context) {
         mContext = context;
@@ -62,15 +62,12 @@ public class DiskCache extends Cache {
 
         // Init `mLruCache`
         String indexContent = IoUtils.read(mCacheIndexFile);
-        Set<String> index = new Gson().fromJson(indexContent, Set.class);
-        if (index == null) {
-            index = new HashSet<>();
-        }
+        Set<String> index = new Gson().fromJson(ObjectUtils.getOpt(indexContent, "[]"), Set.class);
         for (String action : index) {
             mLruCache.put(action, action);
         }
 
-        mWriterSubscription = Observable.empty().subscribe();
+        mWriterDisposable = Observable.empty().subscribe();
     }
 
     @Override
@@ -114,13 +111,14 @@ public class DiskCache extends Cache {
 
     // internal
     private void saveIndex() {
-        mWriterSubscription.unsubscribe();
-        mWriterSubscription = Observable.<Void>just(null)
+        mWriterDisposable.dispose();
+        mWriterDisposable = Observable.<Object>just(0)
                 .delay(TIME_WRITE_BACK_MS, TimeUnit.MILLISECONDS)
-                .map(aVoid -> {
+                .map(object -> {
                     String indexFileContent = new Gson().toJson(mLruCache.keySet());
                     IoUtils.write(mCacheIndexFile, indexFileContent);
-                    return null;
+
+                    return object;
                 })
                 .subscribe();
     }

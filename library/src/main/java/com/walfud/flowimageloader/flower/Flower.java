@@ -7,7 +7,7 @@ import android.widget.ImageView;
 
 import com.walfud.flowimageloader.FlowImageLoader;
 import com.walfud.flowimageloader.dna.action.IntoAction;
-import com.walfud.walle.UriUtils;
+import com.walfud.walle.android.UriUtils;
 
 /**
  * Created by walfud on 2015/11/28.

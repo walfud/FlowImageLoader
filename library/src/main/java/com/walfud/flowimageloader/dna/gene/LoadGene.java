@@ -7,11 +7,11 @@ import android.net.Uri;
 import com.walfud.flowimageloader.FlowImageLoader;
 import com.walfud.flowimageloader.dna.Dna;
 
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by walfud on 2016/3/18.
@@ -27,9 +27,9 @@ public class LoadGene extends Gene {
 
     @Override
     public Observable<Bitmap> onInject(Dna dna) {
-        return Observable.just(null)
+        return Observable.just(0)
                 .observeOn(Schedulers.io())
-                .map(aVoid -> {
+                .map(object -> {
                     Bitmap bitmap = null;
 
                     Request request = new Request.Builder()

@@ -1,0 +1,128 @@
+//plugins {
+//    id "com.github.dcendents.android-maven" version "1.5"       // https://github.com/dcendents/android-maven-gradle-plugin
+//    id "com.jfrog.bintray" version "1.7.3"                      // https://github.com/bintray/gradle-bintray-plugin
+//}
+
+
+def configFile = rootProject.file("jcenter.properties")
+if (!configFile.exists()) {
+    throw new IllegalArgumentException("Can not find '${configFile}'")
+}
+def config = new Properties()
+config.load(configFile.newDataInputStream())
+
+// MISC.
+def __DEBUG = Boolean.valueOf(getProp(config, 'DEBUG', false))
+// Maven Information
+def __MAVEN_USER = getProp(config, 'MAVEN_USER', __DEBUG)
+def __MAVEN_KEY = getProp(config, 'MAVEN_KEY', __DEBUG)
+def __MAVEN_ORGAN = getProp(config, 'MAVEN_ORGAN', __DEBUG)
+def __MAVEN_REPO = getProp(config, 'MAVEN_REPO', __DEBUG)
+def __LICENSES = getProp(config, 'LICENSES', __DEBUG)
+// Artifact Information
+def __ARTIFACT_GROUP = getProp(config, 'ARTIFACT_GROUP', __DEBUG)
+def __ARTIFACT_NAME = getProp(config, 'ARTIFACT_NAME', __DEBUG)
+def __ARTIFACT_OVERRIDE = Boolean.valueOf(getProp(config, 'ARTIFACT_OVERRIDE', __DEBUG))
+// User Information
+def __MY_ID = getProp(config, 'MY_ID', __DEBUG)
+def __MY_NAME = getProp(config, 'MY_NAME', __DEBUG)
+def __MY_EMAIL = getProp(config, 'MY_EMAIL', __DEBUG)
+// Project Information
+def __HOME_URL = getProp(config, 'HOME_URL', __DEBUG)
+def __VCS_URL = getProp(config, 'VCS_URL', __DEBUG)
+
+
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+
+    failOnError false
+}
+javadoc {
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version true
+        links "http://docs.oracle.com/javase/8/docs/api"
+        title __ARTIFACT_NAME
+    }
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+group = __ARTIFACT_GROUP
+version = android.defaultConfig.versionName
+archivesBaseName = __ARTIFACT_NAME
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                url __VCS_URL
+                developers {
+                    developer {
+                        id __MY_ID
+                        name __MY_NAME
+                        email __MY_EMAIL
+                    }
+                }
+            }
+        }
+    }
+}
+bintray {
+    user = __MAVEN_USER
+    key = __MAVEN_KEY
+
+    configurations = ['archives']
+    publish = true
+    override = __ARTIFACT_OVERRIDE
+
+    pkg {
+        userOrg = __MAVEN_ORGAN
+        repo = __MAVEN_REPO
+        name = __ARTIFACT_NAME
+        websiteUrl = __HOME_URL
+        vcsUrl = __VCS_URL
+        licenses = [__LICENSES]
+    }
+}
+
+
+def getProp(properties, key, debug) {
+    def value = null
+    def src = null
+
+    if (hasProperty(key)) {
+        value = getProperty(key)
+        src = 'project'
+    } else if (properties.getProperty(key) != null) {
+        value = properties.getProperty(key)
+        src = 'jcenter.properties'
+    } else {
+        value = System.getenv(key)
+        src = 'System Environment'
+    }
+
+    if (debug) {
+        def secureValue = key == 'MAVEN_KEY' ? "${value[0..1]}..[protected]..${value[-2..-1]}" : value
+        println("`${key}=${secureValue}`\t<= ${src}")
+    }
+
+    return value
+}

@@ -151,8 +151,8 @@ public class FlowImageLoader {
             }
 
             @Override
-            public void onFinish(boolean suc) {
-                if (!suc && failId != IntoAction.INVALID_FAIL_ID) {
+            public void onFinish(Throwable err) {
+                if (err != null && failId != IntoAction.INVALID_FAIL_ID) {
                     imageView.setImageResource(failId);
                 }
             }

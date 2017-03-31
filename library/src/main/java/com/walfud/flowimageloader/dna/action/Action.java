@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.walfud.flowimageloader.dna.Dna;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * Created by walfud on 2016/3/19.
@@ -16,16 +16,16 @@ public abstract class Action {
         this.name = getClass().getSimpleName();
     }
 
-    public Observable<Void> act(Dna dna) {
-        return Observable.just(null)
-                .map(aVoid -> log(name))
-                .concatMap(aVoid -> onAct(dna));
+    public Observable<Object> act(Dna dna) {
+        return Observable.just(0)
+                .map(object -> log(name))
+                .concatMap(object -> onAct(dna));
     }
 
-    protected abstract Observable<Void> onAct(Dna dna);
+    protected abstract Observable<Object> onAct(Dna dna);
 
-    private Void log(String fmt, Object... args) {
+    private int log(String fmt, Object... args) {
         Log.d("FlowImageLoader", String.format(fmt, args));
-        return null;
+        return 0;
     }
 }

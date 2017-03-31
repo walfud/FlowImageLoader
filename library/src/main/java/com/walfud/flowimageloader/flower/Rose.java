@@ -3,8 +3,8 @@ package com.walfud.flowimageloader.flower;
 import android.support.annotation.DrawableRes;
 import android.widget.ImageView;
 
-import com.walfud.walle.DensityTransformer;
 import com.walfud.walle.WallE;
+import com.walfud.walle.android.DensityUtils;
 
 /**
  * Created by walfud on 2015/11/28.
@@ -25,8 +25,8 @@ public class Rose extends Flower {
         mLoadingId = sLoadingId;
         mFailId = sFailId;
         mShape = SHAPE_ROUNDED;
-        mRadiusX = DensityTransformer.dp2px(6);
-        mRadiusY = DensityTransformer.dp2px(6);
+        mRadiusX = DensityUtils.dp2px(6);
+        mRadiusY = DensityUtils.dp2px(6);
     }
 
     //
