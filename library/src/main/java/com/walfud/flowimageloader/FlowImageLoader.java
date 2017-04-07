@@ -1,11 +1,13 @@
 package com.walfud.flowimageloader;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.DrawableRes;
 import android.widget.ImageView;
 
-import com.walfud.flowimageloader.cache.CacheManager;
+import com.walfud.cache.BitmapCache;
+import com.walfud.cache.Cache;
 import com.walfud.flowimageloader.dna.Dna;
 import com.walfud.flowimageloader.dna.action.CacheAction;
 import com.walfud.flowimageloader.dna.action.IntoAction;
@@ -17,8 +19,6 @@ import com.walfud.flowimageloader.dna.gene.LoadGene;
 import com.walfud.flowimageloader.dna.gene.ResizeGene;
 import com.walfud.flowimageloader.dna.gene.RoundGene;
 import com.walfud.walle.WallE;
-
-import okhttp3.OkHttpClient;
 
 /**
  * <pre>{@code
@@ -35,7 +35,7 @@ public class FlowImageLoader {
 
     public static final String TAG = "FlowImageLoader";
 
-    private static OkHttpClient sOkHttpClientInstance;
+    private static Cache<Bitmap> sCache;
     private Dna mDna;
     /**
      * Whether `load` has been called.
@@ -43,17 +43,17 @@ public class FlowImageLoader {
     private boolean mHasUri = false;
 
     private FlowImageLoader(Context context) {
-        mDna = new Dna();
+        mDna = new Dna(sCache);
         mHasUri = false;
     }
 
     // Function
     public static FlowImageLoader with(Context context) {
         Context appContext = context.getApplicationContext();
-        if (sOkHttpClientInstance == null) {
+        if (sCache == null) {
             // Initialization
             WallE.initialize(appContext);
-            CacheManager.getInstance().init(appContext);
+            sCache = new BitmapCache(context, 100L * 1024 * 1024, 100L * 1024 * 1024);
         }
 
         return new FlowImageLoader(appContext);
@@ -121,7 +121,7 @@ public class FlowImageLoader {
     }
 
     public FlowImageLoader cache(boolean memory, boolean disk) {
-        mDna.absorb(new CacheAction());
+        mDna.absorb(new CacheAction(sCache));
 
         return this;
     }
@@ -131,7 +131,7 @@ public class FlowImageLoader {
     }
 
     public FlowImageLoader invalidate(boolean memory, boolean disk) {
-        mDna.absorb(new InvalidateAction());
+        mDna.absorb(new InvalidateAction(sCache));
 
         return this;
     }
@@ -175,13 +175,7 @@ public class FlowImageLoader {
         mDna.eliminate();
     }
 
-    // Other
-    public static OkHttpClient getOkHttpClientInstance() {
-        if (sOkHttpClientInstance == null) {
-            sOkHttpClientInstance = new OkHttpClient.Builder()
-                    .build();
-        }
-
-        return sOkHttpClientInstance;
+    public Cache<Bitmap> getCache() {
+        return sCache;
     }
 }

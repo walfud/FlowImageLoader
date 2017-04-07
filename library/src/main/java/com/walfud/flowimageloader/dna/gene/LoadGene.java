@@ -4,14 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
-import com.walfud.flowimageloader.FlowImageLoader;
 import com.walfud.flowimageloader.dna.Dna;
+import com.walfud.walle.network.NetworkUtils;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * Created by walfud on 2016/3/18.
@@ -27,30 +25,10 @@ public class LoadGene extends Gene {
 
     @Override
     public Observable<Bitmap> onInject(Dna dna) {
-        return Observable.just(0)
+        return NetworkUtils.get(uri.toString())
                 .observeOn(Schedulers.io())
-                .map(object -> {
-                    Bitmap bitmap = null;
-
-                    Request request = new Request.Builder()
-                            .url(uri.toString())
-                            .get()
-                            .build();
-                    try {
-                        Response response = FlowImageLoader.getOkHttpClientInstance().newCall(request).execute();
-                        if (response.isSuccessful()) {
-                            // Success
-                            ResponseBody responseBody = response.body();
-                            byte[] imageFile = responseBody.bytes();
-
-                            // Decode
-                            bitmap = BitmapFactory.decodeByteArray(imageFile, 0, imageFile.length);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    return bitmap;
-                });
+                .map(bytes -> BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
+                .observeOn(AndroidSchedulers.mainThread())
+                .toObservable();
     }
 }

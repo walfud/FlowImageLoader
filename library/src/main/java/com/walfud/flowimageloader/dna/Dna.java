@@ -4,7 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.walfud.flowimageloader.cache.CacheManager;
+import com.google.gson.Gson;
+import com.walfud.cache.Cache;
 import com.walfud.flowimageloader.dna.action.Action;
 import com.walfud.flowimageloader.dna.action.InvalidateAction;
 import com.walfud.flowimageloader.dna.gene.Gene;
@@ -31,6 +32,11 @@ public class Dna {
     private Disposable disposable;
     private Listener mListener;
     private Handler mHandler = new Handler();
+    private Cache<Bitmap> mCache;
+
+    public Dna(Cache<Bitmap> cache) {
+        mCache = cache;
+    }
 
     public Dna digest(Gene gene) {
         unAbsorbGeneList.add(gene);
@@ -50,8 +56,8 @@ public class Dna {
             allGeneDeque.addAll(unAbsorbGeneList);
             Deque<Gene> unCachedGeneList = new ArrayDeque<>();
             while (allGeneDeque.size() > geneList.size()) {
-                String cacheId = CacheManager.toCacheId(allGeneDeque);
-                Bitmap cachedBitmap = CacheManager.getInstance().get(cacheId);
+                String cacheId = new Gson().toJson(allGeneDeque);
+                Bitmap cachedBitmap = mCache.get(cacheId);
                 if (cachedBitmap == null) {
                     Gene unCachedGene = allGeneDeque.removeLast();
                     unCachedGeneList.addFirst(unCachedGene);

@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.widget.ImageView;
 
 import com.walfud.flowimageloader.FlowImageLoader;
-import com.walfud.flowimageloader.flower.Rose;
-import com.walfud.flowimageloader.flower.Sunflower;
 
 
 public class MainActivity extends Activity {
@@ -37,12 +35,12 @@ public class MainActivity extends Activity {
                     .pls();
 
             // Sweet cake
-            Sunflower.seed(R.drawable.loading, R.drawable.fail);
-            new Sunflower(mSunflowerEffectIv).open(sunflowerUrl);
+//            Sunflower.seed(R.drawable.loading, R.drawable.fail);
+//            new Sunflower(mSunflowerEffectIv).open(sunflowerUrl);
         }
 
         // Rose
-        {
+//        {
             // Normal loading
             mRoseIv = (ImageView) findViewById(R.id.iv_rose);
             mRoseEffectIv = (ImageView) findViewById(R.id.iv_rose_effect);
@@ -52,10 +50,10 @@ public class MainActivity extends Activity {
                     .into(mRoseIv, R.drawable.loading, R.drawable.fail)
                     .cache()
                     .pls();
-
-            // Sweet cake
-            Rose.seed(R.drawable.loading, R.drawable.fail);
-            new Rose(mRoseEffectIv).open(roseUrl);
-        }
+//
+//            // Sweet cake
+//            Rose.seed(R.drawable.loading, R.drawable.fail);
+//            new Rose(mRoseEffectIv).open(roseUrl);
+//        }
     }
 }
