@@ -57,3 +57,4 @@ new Sunflower(imageView).open(url);
 
 ## TODO
 3. Request queue for same url in same time
+4. Animate alpha appear
