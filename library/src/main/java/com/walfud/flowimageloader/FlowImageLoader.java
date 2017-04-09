@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.UiThread;
 import android.widget.ImageView;
 
 import com.walfud.cache.BitmapCache;
@@ -19,6 +20,10 @@ import com.walfud.flowimageloader.dna.gene.LoadGene;
 import com.walfud.flowimageloader.dna.gene.ResizeGene;
 import com.walfud.flowimageloader.dna.gene.RoundGene;
 import com.walfud.walle.WallE;
+
+import java.util.Map;
+
+import io.reactivex.disposables.Disposable;
 
 /**
  * <pre>{@code
@@ -36,6 +41,7 @@ public class FlowImageLoader {
     public static final String TAG = "FlowImageLoader";
 
     private static Cache<Bitmap> sCache;
+    private static Map<ImageView, Disposable> sLifecycler;
     private Dna mDna;
     /**
      * Whether `load` has been called.
@@ -143,18 +149,29 @@ public class FlowImageLoader {
     public FlowImageLoader into(ImageView imageView, @DrawableRes int loadingId, @DrawableRes int failId) {
         mDna.absorb(new IntoAction(imageView));
         mDna.setListener(new Dna.Listener() {
+            @UiThread
             @Override
-            public void onStart() {
+            public void onStart(Disposable disposable) {
                 if (loadingId != IntoAction.INVALID_LOADING_ID) {
                     imageView.setImageResource(loadingId);
                 }
+
+                Disposable old = sLifecycler.get(imageView);
+                if (old != null) {
+                    old.dispose();
+                }
+                sLifecycler.put(imageView, disposable);
             }
 
+            @UiThread
             @Override
             public void onFinish(Throwable err) {
                 if (err != null && failId != IntoAction.INVALID_FAIL_ID) {
                     imageView.setImageResource(failId);
                 }
+
+                sLifecycler.remove(imageView);
+
             }
         });
 

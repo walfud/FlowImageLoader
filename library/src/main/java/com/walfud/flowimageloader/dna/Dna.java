@@ -3,6 +3,7 @@ package com.walfud.flowimageloader.dna;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.UiThread;
 
 import com.google.gson.Gson;
 import com.walfud.cache.Cache;
@@ -90,7 +91,7 @@ public class Dna {
                 disposable = d;
 
                 if (mListener != null) {
-                    runOnUiThread(() -> mListener.onStart());
+                    runOnUiThread(() -> mListener.onStart(disposable));
                 }
             }
 
@@ -136,7 +137,10 @@ public class Dna {
 
     //
     public interface Listener {
-        void onStart();
+        @UiThread
+        void onStart(Disposable disposable);
+
+        @UiThread
         void onFinish(Throwable err);
     }
 }

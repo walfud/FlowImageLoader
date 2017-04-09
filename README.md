@@ -56,6 +56,6 @@ new Sunflower(imageView).open(url);
 ![effect_sunflower](https://raw.githubusercontent.com/walfud/flowimageloader/master/doc/effect_sunflower.png)
 
 ## TODO
-1. Use compile 'com.jakewharton:disklrucache:2.0.2' for disk cache
+
 2. Lifecycle Management 
 3. Request queue for same url in same time

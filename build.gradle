@@ -15,7 +15,7 @@ buildscript {
 allprojects {
     repositories {
         maven {
-            url "C:\\Users\\walfud\\.m2\\repository"
+            url "${System.getenv('HOME')}/.m2/repository"
         }
         jcenter()
     }
