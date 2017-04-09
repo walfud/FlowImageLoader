@@ -21,9 +21,8 @@ import com.walfud.flowimageloader.dna.gene.ResizeGene;
 import com.walfud.flowimageloader.dna.gene.RoundGene;
 import com.walfud.walle.WallE;
 
+import java.util.HashMap;
 import java.util.Map;
-
-import io.reactivex.disposables.Disposable;
 
 /**
  * <pre>{@code
@@ -41,7 +40,7 @@ public class FlowImageLoader {
     public static final String TAG = "FlowImageLoader";
 
     private static Cache<Bitmap> sCache;
-    private static Map<ImageView, Disposable> sLifecycler;
+    private static Map<ImageView, Dna> sLifecycler;
     private Dna mDna;
     /**
      * Whether `load` has been called.
@@ -60,6 +59,7 @@ public class FlowImageLoader {
             // Initialization
             WallE.initialize(appContext);
             sCache = new BitmapCache(context, 100L * 1024 * 1024, 100L * 1024 * 1024);
+            sLifecycler = new HashMap<>();
         }
 
         return new FlowImageLoader(appContext);
@@ -151,16 +151,16 @@ public class FlowImageLoader {
         mDna.setListener(new Dna.Listener() {
             @UiThread
             @Override
-            public void onStart(Disposable disposable) {
+            public void onStart(Dna dna) {
                 if (loadingId != IntoAction.INVALID_LOADING_ID) {
                     imageView.setImageResource(loadingId);
                 }
 
-                Disposable old = sLifecycler.get(imageView);
+                Dna old = sLifecycler.get(imageView);
                 if (old != null) {
-                    old.dispose();
+                    old.eliminate();
                 }
-                sLifecycler.put(imageView, disposable);
+                sLifecycler.put(imageView, dna);
             }
 
             @UiThread

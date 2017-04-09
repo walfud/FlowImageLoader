@@ -91,7 +91,7 @@ public class Dna {
                 disposable = d;
 
                 if (mListener != null) {
-                    runOnUiThread(() -> mListener.onStart(disposable));
+                    runOnUiThread(() -> mListener.onStart(Dna.this));
                 }
             }
 
@@ -138,7 +138,7 @@ public class Dna {
     //
     public interface Listener {
         @UiThread
-        void onStart(Disposable disposable);
+        void onStart(Dna dna);
 
         @UiThread
         void onFinish(Throwable err);
