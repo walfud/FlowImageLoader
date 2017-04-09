@@ -56,6 +56,4 @@ new Sunflower(imageView).open(url);
 ![effect_sunflower](https://raw.githubusercontent.com/walfud/flowimageloader/master/doc/effect_sunflower.png)
 
 ## TODO
-
-2. Lifecycle Management 
 3. Request queue for same url in same time

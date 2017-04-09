@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
             @Override
             public void onBindViewHolder(ViewHolder holder, int position) {
                 String url = String.format("https://raw.githubusercontent.com/walfud/Cache/master/app/src/main/assets/%d.jpg", position);
-                FlowImageLoader.with(MainActivity.this).load(url).into(holder.iv).pls();
+                FlowImageLoader.with(MainActivity.this).load(url).into(holder.iv, R.drawable.loading, R.drawable.fail).cache().pls();
             }
 
             @Override
