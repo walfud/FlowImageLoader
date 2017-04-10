@@ -30,8 +30,8 @@ public class Flower {
      * Stub image
      */
     protected Uri mUri;
-    protected int mLoadingId = IntoAction.INVALID_LOADING_ID;
-    protected int mFailId = IntoAction.INVALID_FAIL_ID;
+    protected int mLoadingId = 0;
+    protected int mFailId = 0;
 
     /**
      * For transformer

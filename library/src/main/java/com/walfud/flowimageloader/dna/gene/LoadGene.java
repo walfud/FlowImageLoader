@@ -57,6 +57,7 @@ public class LoadGene extends Gene {
         return Single.just(uri.toString())
                 .observeOn(Schedulers.io())
                 .flatMap(url -> NetworkUtils.get(url))
+                .observeOn(Schedulers.io())
                 .map(bytes -> BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(bitmap -> {

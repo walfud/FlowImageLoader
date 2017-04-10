@@ -143,16 +143,16 @@ public class FlowImageLoader {
     }
 
     public FlowImageLoader into(ImageView imageView) {
-        return into(imageView, IntoAction.INVALID_LOADING_ID, IntoAction.INVALID_FAIL_ID);
+        return into(imageView, 0, 0);
     }
 
     public FlowImageLoader into(ImageView imageView, @DrawableRes int loadingId, @DrawableRes int failId) {
-        mDna.absorb(new IntoAction(imageView));
+        mDna.absorb(new IntoAction(imageView, loadingId, failId));
         mDna.setListener(new Dna.Listener() {
             @UiThread
             @Override
             public void onStart(Dna dna) {
-                if (loadingId != IntoAction.INVALID_LOADING_ID) {
+                if (loadingId != 0) {
                     imageView.setImageResource(loadingId);
                 }
 
@@ -166,7 +166,7 @@ public class FlowImageLoader {
             @UiThread
             @Override
             public void onFinish(Throwable err) {
-                if (err != null && failId != IntoAction.INVALID_FAIL_ID) {
+                if (err != null && failId != 0) {
                     imageView.setImageResource(failId);
                 }
 

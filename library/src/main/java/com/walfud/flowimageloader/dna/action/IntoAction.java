@@ -1,6 +1,9 @@
 package com.walfud.flowimageloader.dna.action;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 import com.walfud.flowimageloader.dna.Dna;
@@ -12,13 +15,20 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
  * Created by walfud on 2016/3/19.
  */
 public class IntoAction extends Action {
-    public static final int INVALID_LOADING_ID = 0;
-    public static final int INVALID_FAIL_ID = 0;
+    public static final String TAG = "IntoAction";
 
     public ImageView imageView;
+    public int loadingId;
+    public int failId;
 
     public IntoAction(ImageView imageView) {
+        this(imageView, 0, 0);
+    }
+
+    public IntoAction(ImageView imageView, int loadingId, int failId) {
         this.imageView = imageView;
+        this.loadingId = loadingId;
+        this.failId = failId;
     }
 
     @Override
@@ -30,7 +40,10 @@ public class IntoAction extends Action {
 
                     if (imageView != null && bitmap != null) {
                         // Success
-                        imageView.setImageBitmap(bitmap);
+                        TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{imageView.getResources().getDrawable(loadingId, null), new BitmapDrawable(imageView.getResources(), bitmap)});
+                        transitionDrawable.setCrossFadeEnabled(true);
+                        imageView.setImageDrawable(transitionDrawable);
+                        transitionDrawable.startTransition(300);
                     }
 
                     return object;
