@@ -1,5 +1,5 @@
 # Introduction
-FlowImageLoader is very friendly to developer. Because every thing is intuitive and under your control.
+FlowImageLoader is another Asynchronous-Image-Loader framework, friendly to developer, and every thing is intuitive and under your control.
 
 
 # Feature
