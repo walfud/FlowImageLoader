@@ -7,6 +7,8 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.UiThread;
 import android.widget.ImageView;
 
+import com.trello.rxlifecycle2.components.RxActivity;
+import com.trello.rxlifecycle2.components.RxFragment;
 import com.walfud.cache.BitmapCache;
 import com.walfud.cache.Cache;
 import com.walfud.flowimageloader.dna.Dna;
@@ -21,6 +23,7 @@ import com.walfud.flowimageloader.dna.gene.ResizeGene;
 import com.walfud.flowimageloader.dna.gene.RoundGene;
 import com.walfud.walle.WallE;
 
+import io.reactivex.ObservableTransformer;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 
@@ -42,29 +45,45 @@ public class FlowImageLoader {
     public static final String TAG = "FlowImageLoader";
 
     private static Cache<Bitmap> sCache;
-    private static Subject<ImageView> sLifecycler;
+    private static Subject<ImageView> sReusableViewLifecycler;
     private Dna mDna;
     /**
      * Whether `load` has been called.
      */
     private boolean mHasUri = false;
 
-    private FlowImageLoader(Context context) {
-        mDna = new Dna(sCache, sLifecycler);
+    private FlowImageLoader(Context context, ObservableTransformer activityOrFragmentLifecycle) {
+        mDna = new Dna(sCache, activityOrFragmentLifecycle, sReusableViewLifecycler);
         mHasUri = false;
     }
 
     // Function
-    public static FlowImageLoader with(Context context) {
-        Context appContext = context.getApplicationContext();
-        if (sCache == null) {
-            // Initialization
-            WallE.initialize(appContext);
-            sCache = new BitmapCache(context, 100L * 1024 * 1024, 100L * 1024 * 1024);
-            sLifecycler = PublishSubject.create();
-        }
 
-        return new FlowImageLoader(appContext);
+    /**
+     * Activity lifecycle aware
+     * @param rxActivity
+     * @return
+     */
+    public static FlowImageLoader with(RxActivity rxActivity) {
+        return with(rxActivity, rxActivity.bindToLifecycle());
+    }
+
+    /**
+     * Fragment lifecycle aware
+     * @param rxFragment
+     * @return
+     */
+    public static FlowImageLoader with(RxFragment rxFragment) {
+        return with(rxFragment.getContext(), rxFragment.bindToLifecycle());
+    }
+
+    /**
+     * No activity/fragment lifecycle aware
+     * @param context
+     * @return
+     */
+    public static FlowImageLoader with(Context context) {
+        return with(context, upstream -> upstream);
     }
 
     public FlowImageLoader load(String url) {
@@ -155,7 +174,7 @@ public class FlowImageLoader {
             @Override
             public void onStart(Dna dna) {
                 // Cancel old request
-                sLifecycler.onNext(imageView);
+                sReusableViewLifecycler.onNext(imageView);
 
                 // Callback
                 if (loadingId != 0) {
@@ -193,5 +212,18 @@ public class FlowImageLoader {
 
     public Cache<Bitmap> getCache() {
         return sCache;
+    }
+
+    //
+    private static FlowImageLoader with(Context context, ObservableTransformer activityOrFragmentLifecycle) {
+        Context appContext = context.getApplicationContext();
+        if (sCache == null) {
+            // Initialization
+            WallE.initialize(appContext);
+            sCache = new BitmapCache(context, 100L * 1024 * 1024, 100L * 1024 * 1024);
+            sReusableViewLifecycler = PublishSubject.create();
+        }
+
+        return new FlowImageLoader(appContext, activityOrFragmentLifecycle);
     }
 }

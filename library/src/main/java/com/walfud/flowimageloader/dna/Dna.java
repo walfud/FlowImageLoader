@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
@@ -29,6 +30,8 @@ import io.reactivex.disposables.Disposable;
  * Created by walfud on 2016/3/18.
  */
 public class Dna {
+    public static final String TAG = "Dna";
+
     public List<Gene> geneList = new ArrayList<>();
     public List<Gene> unAbsorbGeneList = new ArrayList<>();
     public StrongReference<Bitmap> bitmapRef = new StrongReference<>(null);
@@ -37,12 +40,14 @@ public class Dna {
     private Listener mListener;
     private Handler mHandler = new Handler();
     private Cache<Bitmap> mCache;
-    private Observable<ImageView> mLifecycler;
+    private ObservableTransformer mActivityOrFragmentLifecycle;
+    private Observable<ImageView> mReusableViewLifecycler;
     private Set<ImageView> mVirusList = new HashSet<>();
 
-    public Dna(Cache<Bitmap> cache, Observable<ImageView> lifecycler) {
+    public Dna(Cache<Bitmap> cache, ObservableTransformer activityOrFragmentLifecycle, Observable<ImageView> lifecycler) {
         mCache = cache;
-        mLifecycler = lifecycler;
+        mActivityOrFragmentLifecycle = activityOrFragmentLifecycle;
+        mReusableViewLifecycler = lifecycler;
     }
 
     public Dna digest(Gene gene) {
@@ -91,7 +96,9 @@ public class Dna {
     }
 
     public void evolve() {
-        observable.takeUntil(mLifecycler.filter(mVirusList::contains)).subscribe(new Observer<Object>() {
+        observable.takeUntil(mReusableViewLifecycler.filter(mVirusList::contains))
+                .compose(mActivityOrFragmentLifecycle)
+                .subscribe(new Observer<Object>() {
             @Override
             public void onSubscribe(Disposable d) {
                 disposable = d;
