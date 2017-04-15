@@ -15,7 +15,7 @@ FlowImageLoader is very friendly to developer. Because every thing is intuitive 
 # Usage
 
 ```
-compile 'com.walfud:flowimageloader:1.0.0'
+compile 'com.walfud:flowimageloader:2.0.0'
 ```
 
 ## Basic
