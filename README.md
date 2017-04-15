@@ -1,6 +1,16 @@
 # Introduction
 FlowImageLoader is very friendly to developer. Because every thing is intuitive and under your control.
 
+
+# Feature
+1. **Fluent & Controllable** syntax
+2. **Asynchronize** loading & handle in **UI-thread** no matter what thread you are in
+3. **Lifecycle** awared (better adapted to `RecyclerView / RxActivity / RxFragment`)
+4. **Reusable** for same url request of short time
+5. **Faster** decode & **Space-Saving** for cache
+6. Easy **extensible**
+
+
 # Usage
 
 ```
