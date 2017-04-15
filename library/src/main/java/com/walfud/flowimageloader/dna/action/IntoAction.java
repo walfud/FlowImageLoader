@@ -40,7 +40,7 @@ public class IntoAction extends Action {
 
                     if (imageView != null && bitmap != null) {
                         // Success
-                        TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{imageView.getResources().getDrawable(loadingId, null), new BitmapDrawable(imageView.getResources(), bitmap)});
+                        TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{new BitmapDrawable(imageView.getResources(), imageView.getDrawingCache()), new BitmapDrawable(imageView.getResources(), bitmap)});
                         transitionDrawable.setCrossFadeEnabled(true);
                         imageView.setImageDrawable(transitionDrawable);
                         transitionDrawable.startTransition(300);

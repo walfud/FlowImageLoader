@@ -9,6 +9,7 @@ FlowImageLoader is very friendly to developer. Because every thing is intuitive 
 4. **Reusable** for same url request of short time
 5. **Faster** decode & **Space-Saving** for cache
 6. Easy **extensible**
+7. Better **Transition Animations**
 
 
 # Usage
@@ -64,6 +65,3 @@ new Rose(imageView).open(url);
 new Sunflower(imageView).open(url);
 ```
 ![effect_sunflower](https://raw.githubusercontent.com/walfud/flowimageloader/master/doc/effect_sunflower.png)
-
-## TODO
-4. Animate alpha appear
