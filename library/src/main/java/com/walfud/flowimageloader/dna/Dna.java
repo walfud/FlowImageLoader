@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.UiThread;
+import android.widget.ImageView;
 
 import com.google.gson.Gson;
 import com.walfud.cache.Cache;
@@ -15,7 +16,9 @@ import com.walfud.walle.lang.StrongReference;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -34,9 +37,12 @@ public class Dna {
     private Listener mListener;
     private Handler mHandler = new Handler();
     private Cache<Bitmap> mCache;
+    private Observable<ImageView> mLifecycler;
+    private Set<ImageView> mVirusList = new HashSet<>();
 
-    public Dna(Cache<Bitmap> cache) {
+    public Dna(Cache<Bitmap> cache, Observable<ImageView> lifecycler) {
         mCache = cache;
+        mLifecycler = lifecycler;
     }
 
     public Dna digest(Gene gene) {
@@ -85,7 +91,7 @@ public class Dna {
     }
 
     public void evolve() {
-        observable.subscribe(new Observer<Object>() {
+        observable.takeUntil(mLifecycler.filter(mVirusList::contains)).subscribe(new Observer<Object>() {
             @Override
             public void onSubscribe(Disposable d) {
                 disposable = d;
@@ -114,6 +120,13 @@ public class Dna {
                 }
             }
         });
+    }
+
+    /**
+     * Oh no... Once if meet virus, the life will end -_-#
+     */
+    public void addVirus(ImageView virus) {
+        mVirusList.add(virus);
     }
 
     public void eliminate() {

@@ -21,18 +21,20 @@ import com.walfud.flowimageloader.dna.gene.ResizeGene;
 import com.walfud.flowimageloader.dna.gene.RoundGene;
 import com.walfud.walle.WallE;
 
-import java.util.HashMap;
-import java.util.Map;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 
 /**
- * <pre>{@code
+ * <pre>
+ * {@code
  * FlowImageLoader.with(getApplicationContext())
+ *       .load(Uri.parse("https://raw.githubusercontent.com/walfud/lib-flowimageloader/master/doc/workflow.png"))
  *       .resize(1000, 500)
- *       .load(Uri.parse("https://raw.githubusercontent.com/walfud/lib-flowimageloader/master/doc/workflow.png")).resize(200, 100)
- *       .cache()
  *       .into(mIv)
+ *       .cache()
  *       .pls();
- * }</pre>
+ * }
+ * </pre>
  * Created by walfud on 2015/11/11.
  */
 public class FlowImageLoader {
@@ -40,7 +42,7 @@ public class FlowImageLoader {
     public static final String TAG = "FlowImageLoader";
 
     private static Cache<Bitmap> sCache;
-    private static Map<ImageView, Dna> sLifecycler;
+    private static Subject<ImageView> sLifecycler;
     private Dna mDna;
     /**
      * Whether `load` has been called.
@@ -48,7 +50,7 @@ public class FlowImageLoader {
     private boolean mHasUri = false;
 
     private FlowImageLoader(Context context) {
-        mDna = new Dna(sCache);
+        mDna = new Dna(sCache, sLifecycler);
         mHasUri = false;
     }
 
@@ -59,7 +61,7 @@ public class FlowImageLoader {
             // Initialization
             WallE.initialize(appContext);
             sCache = new BitmapCache(context, 100L * 1024 * 1024, 100L * 1024 * 1024);
-            sLifecycler = new HashMap<>();
+            sLifecycler = PublishSubject.create();
         }
 
         return new FlowImageLoader(appContext);
@@ -152,15 +154,13 @@ public class FlowImageLoader {
             @UiThread
             @Override
             public void onStart(Dna dna) {
+                // Cancel old request
+                sLifecycler.onNext(imageView);
+
+                // Callback
                 if (loadingId != 0) {
                     imageView.setImageResource(loadingId);
                 }
-
-                Dna old = sLifecycler.get(imageView);
-                if (old != null) {
-                    old.eliminate();
-                }
-                sLifecycler.put(imageView, dna);
             }
 
             @UiThread
@@ -170,10 +170,9 @@ public class FlowImageLoader {
                     imageView.setImageResource(failId);
                 }
 
-                sLifecycler.remove(imageView);
-
             }
         });
+        mDna.addVirus(imageView);
 
         return this;
     }
