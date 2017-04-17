@@ -36,7 +36,7 @@ public class IntoAction extends Action {
         return Observable.<Object>just(0)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(object -> {
-                    Bitmap bitmap = dna.bitmapRef.get();
+                    Bitmap bitmap = dna.getBitmap();
 
                     if (imageView != null && bitmap != null) {
                         // Success

@@ -25,8 +25,8 @@ public class CacheAction extends Action {
         return Observable.just(0)
                 .observeOn(Schedulers.io())
                 .map(object -> {
-                    String cacheId = new Gson().toJson(dna.geneList);
-                    Bitmap bitmap = dna.bitmapRef.get();
+                    String cacheId = new Gson().toJson(dna.getGeneList());
+                    Bitmap bitmap = dna.getBitmap();
                     mCache.add(cacheId, bitmap);
 
                     return object;

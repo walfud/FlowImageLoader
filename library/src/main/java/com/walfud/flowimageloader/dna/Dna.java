@@ -2,7 +2,6 @@ package com.walfud.flowimageloader.dna;
 
 import android.graphics.Bitmap;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.UiThread;
 import android.widget.ImageView;
 
@@ -11,6 +10,7 @@ import com.walfud.cache.Cache;
 import com.walfud.flowimageloader.dna.action.Action;
 import com.walfud.flowimageloader.dna.action.InvalidateAction;
 import com.walfud.flowimageloader.dna.gene.Gene;
+import com.walfud.walle.android.Etc;
 import com.walfud.walle.lang.StrongReference;
 
 import java.util.ArrayDeque;
@@ -32,11 +32,11 @@ import io.reactivex.disposables.Disposable;
 public class Dna {
     public static final String TAG = "Dna";
 
-    public List<Gene> geneList = new ArrayList<>();
-    public List<Gene> unAbsorbGeneList = new ArrayList<>();
-    public StrongReference<Bitmap> bitmapRef = new StrongReference<>(null);
-    private Observable<Object> observable = Observable.empty();
-    private Disposable disposable;
+    private List<Gene> mGeneList = new ArrayList<>();
+    private List<Gene> mUnAbsorbGeneList = new ArrayList<>();
+    private StrongReference<Bitmap> mBitmapRef = new StrongReference<>(null);
+    private Observable<Object> mObservable = Observable.empty();
+    private Disposable mDisposable;
     private Listener mListener;
     private Handler mHandler = new Handler();
     private Cache<Bitmap> mCache;
@@ -50,24 +50,28 @@ public class Dna {
         mReusableViewLifecycler = lifecycler;
     }
 
-    public Dna digest(Gene gene) {
-        unAbsorbGeneList.add(gene);
+    public Dna eat(Gene gene) {
+        mUnAbsorbGeneList.add(gene);
         return this;
     }
 
-    public Dna absorb(Action action) {
+    public Dna grow(Action action) {
+        return grow(action, null);
+    }
+
+    public Dna grow(Action action, ActionListener actionListener) {
         if (action instanceof InvalidateAction) {
             // `InvalidateAction` should not replay any gene
-            geneList.addAll(unAbsorbGeneList);
-            unAbsorbGeneList = new ArrayList<>();
-            bitmapRef.set(null);
-            observable = observable.concatWith(action.act(this));
+            mGeneList.addAll(mUnAbsorbGeneList);
+            mUnAbsorbGeneList = new ArrayList<>();
+            mBitmapRef.set(null);
+            mObservable = mObservable.concatWith(action.act(this));
         } else {
             // Query cache
-            Deque<Gene> allGeneDeque = new ArrayDeque<>(geneList);
-            allGeneDeque.addAll(unAbsorbGeneList);
+            Deque<Gene> allGeneDeque = new ArrayDeque<>(mGeneList);
+            allGeneDeque.addAll(mUnAbsorbGeneList);
             Deque<Gene> unCachedGeneList = new ArrayDeque<>();
-            while (allGeneDeque.size() > geneList.size()) {
+            while (allGeneDeque.size() > mGeneList.size()) {
                 String cacheId = new Gson().toJson(allGeneDeque);
                 Bitmap cachedBitmap = mCache.get(cacheId);
                 if (cachedBitmap == null) {
@@ -75,58 +79,59 @@ public class Dna {
                     unCachedGeneList.addFirst(unCachedGene);
                 } else {
                     // Hit
-                    geneList.clear();
-                    geneList.addAll(allGeneDeque);
-                    bitmapRef.set(cachedBitmap);
+                    mGeneList.clear();
+                    mGeneList.addAll(allGeneDeque);
+                    mBitmapRef.set(cachedBitmap);
                     break;
                 }
             }
 
             // Replay the un-cached gene
-            observable = observable.concatWith(Observable.fromIterable(unCachedGeneList).concatMap(gene -> gene.inject(this)));
+            mObservable = mObservable.concatWith(Observable.fromIterable(unCachedGeneList).concatMap(gene -> gene.inject(this)));
 
             // Do action
-            observable = observable.concatWith(action.act(this));
+            mObservable = mObservable.concatWith(action.act(this));
 
             //
-            unAbsorbGeneList = new ArrayList<>();
+            mUnAbsorbGeneList = new ArrayList<>();
         }
 
         return this;
     }
 
     public void evolve() {
-        observable.takeUntil(mReusableViewLifecycler.filter(mVirusList::contains))
-                .compose(mActivityOrFragmentLifecycle)
+        mObservable
+                .takeUntil(mReusableViewLifecycler.filter(mVirusList::contains))    // Re-usable view
+                .compose(mActivityOrFragmentLifecycle)                              // Activity/Fragment
                 .subscribe(new Observer<Object>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                disposable = d;
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        mDisposable = d;
 
-                if (mListener != null) {
-                    runOnUiThread(() -> mListener.onStart(Dna.this));
-                }
-            }
+                        if (mListener != null) {
+                            Etc.runOnUiThread(args -> mListener.onStart(Dna.this));
+                        }
+                    }
 
-            @Override
-            public void onNext(Object object) {
+                    @Override
+                    public void onNext(Object object) {
 
-            }
+                    }
 
-            @Override
-            public void onComplete() {
-                if (mListener != null) {
-                    runOnUiThread(() -> mListener.onFinish(null));
-                }
-            }
+                    @Override
+                    public void onComplete() {
+                        if (mListener != null) {
+                            Etc.runOnUiThread(args -> mListener.onFinish(null));
+                        }
+                    }
 
-            @Override
-            public void onError(Throwable e) {
-                if (mListener != null) {
-                    runOnUiThread(() -> mListener.onFinish(e));
-                }
-            }
-        });
+                    @Override
+                    public void onError(Throwable e) {
+                        if (mListener != null) {
+                            Etc.runOnUiThread(args -> mListener.onFinish(e));
+                        }
+                    }
+                });
     }
 
     /**
@@ -137,9 +142,27 @@ public class Dna {
     }
 
     public void eliminate() {
-        if (disposable != null) {
-            disposable.dispose();
+        if (mDisposable != null) {
+            mDisposable.dispose();
         }
+    }
+
+    /**
+     * When absorb, the `gene` takes effect
+     * @param gene
+     * @param bitmap
+     */
+    public void absorb(Gene gene, Bitmap bitmap) {
+        mGeneList.add(gene);
+        mBitmapRef.set(bitmap);
+    }
+
+    public List<Gene> getGeneList() {
+        return mGeneList;
+    }
+
+    public Bitmap getBitmap() {
+        return mBitmapRef.get();
     }
 
     public void setListener(Listener listener) {
@@ -147,15 +170,14 @@ public class Dna {
     }
 
     //
-    private void runOnUiThread(Runnable runnable) {
-        if (Looper.getMainLooper().isCurrentThread()) {
-            runnable.run();
-        } else {
-            mHandler.post(runnable);
-        }
+    public interface ActionListener {
+        @UiThread
+        void preAction();
+
+        @UiThread
+        void postAction(Throwable throwable);
     }
 
-    //
     public interface Listener {
         @UiThread
         void onStart(Dna dna);

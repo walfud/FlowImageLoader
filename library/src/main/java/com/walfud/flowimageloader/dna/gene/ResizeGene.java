@@ -26,7 +26,7 @@ public class ResizeGene extends Gene {
         return Observable.just(0)
                 .observeOn(Schedulers.computation())
                 .map(object -> {
-                    Bitmap src = dna.bitmapRef.get();
+                    Bitmap src = dna.getBitmap();
                     int srcWidth = src.getWidth();
                     int srcHeight = src.getHeight();
                     Bitmap.Config originConfig = src.getConfig();

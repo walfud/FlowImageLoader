@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.DrawableRes;
-import android.support.annotation.UiThread;
 import android.widget.ImageView;
 
 import com.trello.rxlifecycle2.components.RxActivity;
@@ -90,7 +89,7 @@ public class FlowImageLoader {
         return load(Uri.parse(url));
     }
     public FlowImageLoader load(Uri uri) {
-        mDna.digest(new LoadGene(uri));
+        mDna.eat(new LoadGene(uri));
         mHasUri = true;
 
         return this;
@@ -113,32 +112,32 @@ public class FlowImageLoader {
             throw new RuntimeException("not impl");
         } else {
             // 'resize' action in local bitmap
-            mDna.digest(new ResizeGene(width, height));
+            mDna.eat(new ResizeGene(width, height));
         }
 
         return this;
     }
 
     public FlowImageLoader circle() {
-        mDna.digest(new CircleGene());
+        mDna.eat(new CircleGene());
 
         return this;
     }
 
     public FlowImageLoader round(double radiusX, double radiusY) {
-        mDna.digest(new RoundGene(radiusX, radiusY));
+        mDna.eat(new RoundGene(radiusX, radiusY));
 
         return this;
     }
 
     public FlowImageLoader crop(int width, int height) {
-        mDna.digest(new CropGene(width, height));
+        mDna.eat(new CropGene(width, height));
 
         return this;
     }
 
     public FlowImageLoader centerInside(int width, int height) {
-        mDna.digest(new CenterInsideGene(width, height));
+        mDna.eat(new CenterInsideGene(width, height));
 
         return this;
     }
@@ -148,7 +147,7 @@ public class FlowImageLoader {
     }
 
     public FlowImageLoader cache(boolean memory, boolean disk) {
-        mDna.absorb(new CacheAction(sCache));
+        mDna.grow(new CacheAction(sCache));
 
         return this;
     }
@@ -158,7 +157,7 @@ public class FlowImageLoader {
     }
 
     public FlowImageLoader invalidate(boolean memory, boolean disk) {
-        mDna.absorb(new InvalidateAction(sCache));
+        mDna.grow(new InvalidateAction(sCache));
 
         return this;
     }
@@ -168,11 +167,9 @@ public class FlowImageLoader {
     }
 
     public FlowImageLoader into(ImageView imageView, @DrawableRes int loadingId, @DrawableRes int failId) {
-        mDna.absorb(new IntoAction(imageView, loadingId, failId));
-        mDna.setListener(new Dna.Listener() {
-            @UiThread
+        mDna.grow(new IntoAction(imageView, loadingId, failId), new Dna.ActionListener() {
             @Override
-            public void onStart(Dna dna) {
+            public void preAction() {
                 // Cancel old request
                 sReusableViewLifecycler.onNext(imageView);
 
@@ -182,13 +179,11 @@ public class FlowImageLoader {
                 }
             }
 
-            @UiThread
             @Override
-            public void onFinish(Throwable err) {
-                if (err != null && failId != 0) {
+            public void postAction(Throwable throwable) {
+                if (throwable != null && failId != 0) {
                     imageView.setImageResource(failId);
                 }
-
             }
         });
         mDna.addVirus(imageView);

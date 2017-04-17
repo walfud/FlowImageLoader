@@ -25,8 +25,7 @@ public abstract class Gene {
                 .concatMap(object -> onInject(dna))
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(bitmap -> {
-                    dna.geneList.add(this);
-                    dna.bitmapRef.set(bitmap);
+                    dna.absorb(this, bitmap);
 
                     return 0;
                 });

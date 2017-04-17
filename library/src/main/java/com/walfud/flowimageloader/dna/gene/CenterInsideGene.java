@@ -25,7 +25,7 @@ public class CenterInsideGene extends Gene {
         return Observable.just(0)
                 .observeOn(Schedulers.computation())
                 .map(object -> {
-                    Bitmap src = dna.bitmapRef.get();
+                    Bitmap src = dna.getBitmap();
                     return new BitmapTransformer(src)
                             .centerInside(dstWidth, dstHeight)
                             .get();

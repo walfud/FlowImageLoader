@@ -24,7 +24,7 @@ public class InvalidateAction extends Action {
         return Observable.<Object>just(0)
                 .observeOn(Schedulers.io())
                 .map(object -> {
-                    String cacheId = new Gson().toJson(dna.geneList);
+                    String cacheId = new Gson().toJson(dna.getGeneList());
                     mCache.invalidate(cacheId);
 
                     return object;
