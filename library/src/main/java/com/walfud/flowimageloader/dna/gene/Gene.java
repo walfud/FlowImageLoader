@@ -34,7 +34,7 @@ public abstract class Gene {
     protected abstract Observable<Bitmap> onInject(Dna dna);
 
     private Object log(String fmt, Object... args) {
-        Log.d("FlowImageLoader", String.format(fmt, args));
+        Log.v("FlowImageLoader", String.format(fmt, args));
         return 0;
     }
 }

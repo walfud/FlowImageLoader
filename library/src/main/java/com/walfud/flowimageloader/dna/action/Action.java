@@ -25,7 +25,7 @@ public abstract class Action {
     protected abstract Observable<Object> onAct(Dna dna);
 
     private int log(String fmt, Object... args) {
-        Log.d("FlowImageLoader", String.format(fmt, args));
+        Log.v("FlowImageLoader", String.format(fmt, args));
         return 0;
     }
 }
