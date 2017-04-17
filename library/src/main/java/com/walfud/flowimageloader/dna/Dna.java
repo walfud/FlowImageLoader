@@ -61,7 +61,7 @@ public class Dna {
             mGeneList.addAll(mUnAbsorbGeneList);
             mUnAbsorbGeneList.clear();
             mBitmapRef.set(null);
-            mObservable = mObservable.concatWith(action.act(this));
+            mObservable = mObservable.concatWith(action.act(this, new ArrayList<>()));
         } else {
             // Query cache
             int originSize = mGeneList.size();
@@ -83,10 +83,10 @@ public class Dna {
 
             Observable observable = Observable
                     .fromIterable(unCachedGeneList).concatMap(gene -> gene.inject(this))  // Replay the un-absorbed gene
-                    .concatWith(action.act(this))                                         // Do Action
+                    .concatWith(action.act(this, unCachedGeneList))                       // Do Action
                     .doOnSubscribe(disposable -> {
                         if (actionListener != null) {
-                            Etc.runOnUiThread(args -> actionListener.preAction());
+                            Etc.runOnUiThread(args -> actionListener.preAction(unCachedGeneList));
                         }
                     })
                     .doOnComplete(() -> {
@@ -180,7 +180,7 @@ public class Dna {
     //
     public interface ActionListener {
         @UiThread
-        void preAction();
+        void preAction(List<Gene> todoGeneList);
 
         @UiThread
         void postAction(Throwable throwable);

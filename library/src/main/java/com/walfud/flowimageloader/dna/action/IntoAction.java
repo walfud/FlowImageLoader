@@ -7,6 +7,12 @@ import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 import com.walfud.flowimageloader.dna.Dna;
+import com.walfud.flowimageloader.dna.gene.Gene;
+import com.walfud.flowimageloader.dna.gene.LoadGene;
+import com.walfud.walle.algorithm.Comparator;
+import com.walfud.walle.collection.CollectionUtils;
+
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -32,7 +38,7 @@ public class IntoAction extends Action {
     }
 
     @Override
-    public Observable<Object> onAct(Dna dna) {
+    public Observable<Object> onAct(Dna dna, List<Gene> todoGeneList) {
         return Observable.<Object>just(0)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(object -> {
@@ -40,10 +46,16 @@ public class IntoAction extends Action {
 
                     if (imageView != null && bitmap != null) {
                         // Success
-                        TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{new BitmapDrawable(imageView.getResources(), imageView.getDrawingCache()), new BitmapDrawable(imageView.getResources(), bitmap)});
-                        transitionDrawable.setCrossFadeEnabled(true);
-                        imageView.setImageDrawable(transitionDrawable);
-                        transitionDrawable.startTransition(300);
+                        if (CollectionUtils.find(todoGeneList, (Comparator<Void, Gene>) (a, b) -> b instanceof LoadGene ? 0 : -1) != null) {
+                            // Transition animation
+                            TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{new BitmapDrawable(imageView.getResources(), imageView.getDrawingCache()), new BitmapDrawable(imageView.getResources(), bitmap)});
+                            transitionDrawable.setCrossFadeEnabled(true);
+                            imageView.setImageDrawable(transitionDrawable);
+                            transitionDrawable.startTransition(300);
+                        } else {
+                            // Hit cache, just draw bitmap
+                            imageView.setImageBitmap(bitmap);
+                        }
                     }
 
                     return object;

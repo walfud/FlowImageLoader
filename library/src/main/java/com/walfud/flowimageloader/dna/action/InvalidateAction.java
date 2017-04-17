@@ -5,6 +5,9 @@ import android.graphics.Bitmap;
 import com.google.gson.Gson;
 import com.walfud.cache.Cache;
 import com.walfud.flowimageloader.dna.Dna;
+import com.walfud.flowimageloader.dna.gene.Gene;
+
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
@@ -20,7 +23,7 @@ public class InvalidateAction extends Action {
     }
 
     @Override
-    public Observable<Object> onAct(Dna dna) {
+    public Observable<Object> onAct(Dna dna, List<Gene> todoGeneList) {
         return Observable.<Object>just(0)
                 .observeOn(Schedulers.io())
                 .map(object -> {

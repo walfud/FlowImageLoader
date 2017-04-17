@@ -17,10 +17,15 @@ import com.walfud.flowimageloader.dna.action.InvalidateAction;
 import com.walfud.flowimageloader.dna.gene.CenterInsideGene;
 import com.walfud.flowimageloader.dna.gene.CircleGene;
 import com.walfud.flowimageloader.dna.gene.CropGene;
+import com.walfud.flowimageloader.dna.gene.Gene;
 import com.walfud.flowimageloader.dna.gene.LoadGene;
 import com.walfud.flowimageloader.dna.gene.ResizeGene;
 import com.walfud.flowimageloader.dna.gene.RoundGene;
 import com.walfud.walle.WallE;
+import com.walfud.walle.algorithm.Comparator;
+import com.walfud.walle.collection.CollectionUtils;
+
+import java.util.List;
 
 import io.reactivex.ObservableTransformer;
 import io.reactivex.subjects.PublishSubject;
@@ -169,13 +174,13 @@ public class FlowImageLoader {
     public FlowImageLoader into(ImageView imageView, @DrawableRes int loadingId, @DrawableRes int failId) {
         mDna.grow(new IntoAction(imageView, loadingId, failId), new Dna.ActionListener() {
             @Override
-            public void preAction() {
+            public void preAction(List<Gene> todoGeneList) {
                 // Cancel old request
                 sReusableViewLifecycler.onNext(imageView);
                 mDna.addVirus(imageView);
 
                 // Callback
-                if (loadingId != 0) {
+                if (loadingId != 0 && CollectionUtils.find(todoGeneList, (Comparator<Void, Gene>) (a, b) -> b instanceof LoadGene ? 0 : -1) != null) {
                     imageView.setImageResource(loadingId);
                 }
             }
