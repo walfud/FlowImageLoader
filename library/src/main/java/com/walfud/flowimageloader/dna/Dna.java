@@ -12,9 +12,7 @@ import com.walfud.flowimageloader.dna.gene.Gene;
 import com.walfud.walle.android.Etc;
 import com.walfud.walle.lang.StrongReference;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,20 +64,18 @@ public class Dna {
             mObservable = mObservable.concatWith(action.act(this));
         } else {
             // Query cache
-            Deque<Gene> allGeneDeque = new ArrayDeque<>(mGeneList);
-            allGeneDeque.addAll(mUnAbsorbGeneList);
+            int originSize = mGeneList.size();
+            mGeneList.addAll(mUnAbsorbGeneList);
             mUnAbsorbGeneList.clear();
-            Deque<Gene> unCachedGeneList = new ArrayDeque<>();
-            while (allGeneDeque.size() > mGeneList.size()) {
-                String cacheId = new Gson().toJson(allGeneDeque);
+            List<Gene> unCachedGeneList = new ArrayList<>();
+            while (mGeneList.size() > originSize) {
+                String cacheId = new Gson().toJson(mGeneList);
                 Bitmap cachedBitmap = mCache.get(cacheId);
                 if (cachedBitmap == null) {
-                    Gene unCachedGene = allGeneDeque.removeLast();
-                    unCachedGeneList.addFirst(unCachedGene);
+                    Gene unCachedGene = mGeneList.remove(mGeneList.size() - 1);
+                    unCachedGeneList.add(unCachedGene);
                 } else {
                     // Hit
-                    mGeneList.clear();
-                    mGeneList.addAll(allGeneDeque);
                     mBitmapRef.set(cachedBitmap);
                     break;
                 }

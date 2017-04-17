@@ -28,7 +28,7 @@ public class CacheAction extends Action {
                     String cacheId = new Gson().toJson(dna.getGeneList());
                     Bitmap bitmap = dna.getBitmap();
                     if (mCache.get(cacheId) == null) {
-                        mCache.add(cacheId, bitmap);
+                        mCache.set(cacheId, bitmap);
                     }
 
                     return object;
