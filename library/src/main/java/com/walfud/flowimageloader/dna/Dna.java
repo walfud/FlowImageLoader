@@ -1,7 +1,6 @@
 package com.walfud.flowimageloader.dna;
 
 import android.graphics.Bitmap;
-import android.os.Handler;
 import android.support.annotation.UiThread;
 import android.widget.ImageView;
 
@@ -38,7 +37,6 @@ public class Dna {
     private Observable<Object> mObservable = Observable.empty();
     private Disposable mDisposable;
     private Listener mListener;
-    private Handler mHandler = new Handler();
     private Cache<Bitmap> mCache;
     private ObservableTransformer mActivityOrFragmentLifecycle;
     private Observable<ImageView> mReusableViewLifecycler;
@@ -63,13 +61,14 @@ public class Dna {
         if (action instanceof InvalidateAction) {
             // `InvalidateAction` should not replay any gene
             mGeneList.addAll(mUnAbsorbGeneList);
-            mUnAbsorbGeneList = new ArrayList<>();
+            mUnAbsorbGeneList.clear();
             mBitmapRef.set(null);
             mObservable = mObservable.concatWith(action.act(this));
         } else {
             // Query cache
             Deque<Gene> allGeneDeque = new ArrayDeque<>(mGeneList);
             allGeneDeque.addAll(mUnAbsorbGeneList);
+            mUnAbsorbGeneList.clear();
             Deque<Gene> unCachedGeneList = new ArrayDeque<>();
             while (allGeneDeque.size() > mGeneList.size()) {
                 String cacheId = new Gson().toJson(allGeneDeque);
@@ -86,14 +85,27 @@ public class Dna {
                 }
             }
 
-            // Replay the un-cached gene
-            mObservable = mObservable.concatWith(Observable.fromIterable(unCachedGeneList).concatMap(gene -> gene.inject(this)));
+            Observable observable = Observable
+                    .fromIterable(unCachedGeneList).concatMap(gene -> gene.inject(this))  // Replay the un-absorbed gene
+                    .concatWith(action.act(this))                                         // Do Action
+                    .doOnSubscribe(disposable -> {
+                        if (actionListener != null) {
+                            Etc.runOnUiThread(args -> actionListener.preAction());
+                        }
+                    })
+                    .doOnComplete(() -> {
+                        if (actionListener != null) {
+                            Etc.runOnUiThread(args -> actionListener.postAction(null));
+                        }
+                    })
+                    .doOnError(throwable -> {
+                        if (actionListener != null) {
+                            Etc.runOnUiThread(args -> actionListener.postAction(throwable));
+                        }
+                    });
 
             // Do action
-            mObservable = mObservable.concatWith(action.act(this));
-
-            //
-            mUnAbsorbGeneList = new ArrayList<>();
+            mObservable = mObservable.concatWith(observable);
         }
 
         return this;

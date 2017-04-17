@@ -172,6 +172,7 @@ public class FlowImageLoader {
             public void preAction() {
                 // Cancel old request
                 sReusableViewLifecycler.onNext(imageView);
+                mDna.addVirus(imageView);
 
                 // Callback
                 if (loadingId != 0) {
@@ -186,7 +187,6 @@ public class FlowImageLoader {
                 }
             }
         });
-        mDna.addVirus(imageView);
 
         return this;
     }
