@@ -24,7 +24,6 @@ def __ARTIFACT_GROUP = getProp(config, 'ARTIFACT_GROUP', __DEBUG)
 def __ARTIFACT_NAME = getProp(config, 'ARTIFACT_NAME', __DEBUG)
 def __ARTIFACT_OVERRIDE = Boolean.valueOf(getProp(config, 'ARTIFACT_OVERRIDE', __DEBUG))
 // User Information
-def __MY_ID = getProp(config, 'MY_ID', __DEBUG)
 def __MY_NAME = getProp(config, 'MY_NAME', __DEBUG)
 def __MY_EMAIL = getProp(config, 'MY_EMAIL', __DEBUG)
 // Project Information
@@ -76,7 +75,6 @@ install {
                 url __VCS_URL
                 developers {
                     developer {
-                        id __MY_ID
                         name __MY_NAME
                         email __MY_EMAIL
                     }
