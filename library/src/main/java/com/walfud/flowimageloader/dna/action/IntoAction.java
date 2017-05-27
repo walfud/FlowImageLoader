@@ -12,7 +12,6 @@ import com.walfud.flowimageloader.dna.gene.LoadGene;
 import com.walfud.walle.collection.CollectionUtils;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -46,7 +45,7 @@ public class IntoAction extends Action {
 
                     if (imageView != null && bitmap != null) {
                         // Success
-                        if (CollectionUtils.find(todoGeneList, (Predicate<Gene>) gene -> gene instanceof LoadGene) != null) {
+                        if (CollectionUtils.find(todoGeneList, (CollectionUtils.Predicate<Gene>) gene -> gene instanceof LoadGene) != null) {
                             // Transition animation
                             TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{new BitmapDrawable(imageView.getResources(), imageView.getDrawingCache()), new BitmapDrawable(imageView.getResources(), bitmap)});
                             transitionDrawable.setCrossFadeEnabled(true);

@@ -30,7 +30,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.walfud:walle:2.0.1'
+    compile 'com.walfud:walle:2.0.2'
     compile 'com.walfud:cache:1.0.0'
 }
 

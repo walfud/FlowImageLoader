@@ -25,7 +25,6 @@ import com.walfud.walle.WallE;
 import com.walfud.walle.collection.CollectionUtils;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import io.reactivex.ObservableTransformer;
 import io.reactivex.subjects.PublishSubject;
@@ -78,7 +77,7 @@ public class FlowImageLoader {
      * @return
      */
     public static FlowImageLoader with(RxFragment rxFragment) {
-        return with(rxFragment.getContext(), rxFragment.bindToLifecycle());
+        return with(rxFragment.getActivity(), rxFragment.bindToLifecycle());
     }
 
     /**
@@ -180,7 +179,7 @@ public class FlowImageLoader {
                 mDna.addVirus(imageView);
 
                 // Callback
-                if (loadingId != 0 && CollectionUtils.find(todoGeneList, (Predicate<Gene>) gene -> gene instanceof LoadGene) != null) {
+                if (loadingId != 0 && CollectionUtils.find(todoGeneList, (CollectionUtils.Predicate<Gene>) gene -> gene instanceof LoadGene) != null) {
                     imageView.setImageResource(loadingId);
                 }
             }
